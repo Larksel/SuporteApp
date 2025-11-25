@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SuporteApp.WebAPI;
 using SuporteApp.WebAPI.Data;
+using SuporteApp.WebAPI.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,7 +34,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseCors("DefaultPolicy");
-app.MapHub<SupportHub>("/chatHub");
+app.MapHub<SupportHub>("/hubs/chat");
 
 app.UseAuthorization();
 
