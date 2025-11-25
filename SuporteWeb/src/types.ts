@@ -1,3 +1,20 @@
+export enum TicketStatus {
+  Open = 0,
+  InProgress = 1,
+  Resolved = 2,
+  Closed = 3,
+}
+
+export interface Ticket {
+  id: number;
+  title: string;
+  description: string;
+  status: TicketStatus;
+  clientName: string;
+  createdAt?: string;
+  technicianName?: string;
+}
+
 export interface User {
   id: number;
   name: string;
@@ -10,12 +27,4 @@ export interface Message {
   sentAt: string;
   senderId: number;
   senderName?: string;
-}
-
-export interface Ticket {
-  id: number;
-  title: string;
-  description: string;
-  status: number;
-  clientName: string;
 }
