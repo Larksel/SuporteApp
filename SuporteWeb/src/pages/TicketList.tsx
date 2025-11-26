@@ -12,7 +12,7 @@ export default function TicketList() {
   const fetchTickets = async () => {
     try {
       const response = await axios.get(`${API_URL}/api/tickets`);
-      console.log(response)
+      console.log(response);
       setTickets(response.data);
     } catch (error) {
       console.error("Erro ao buscar tickets", error);
@@ -27,9 +27,13 @@ export default function TicketList() {
 
   const handleStatusChange = async (id: number, newStatus: string) => {
     try {
-      await axios.put(`${API_URL}/api/tickets/${id}/status`, Number(newStatus), {
-        headers: { "Content-Type": "application/json" },
-      });
+      await axios.put(
+        `${API_URL}/api/tickets/${id}/status`,
+        Number(newStatus),
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
 
       setTickets((prev) =>
         prev.map((t) => (t.id === id ? { ...t, status: Number(newStatus) } : t))
@@ -79,9 +83,12 @@ export default function TicketList() {
           <h1 className="text-3xl font-bold text-gray-800">
             Painel de Suporte
           </h1>
-          <button className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
-            + Novo Ticket
-          </button>
+          <Link
+            to="/tickets/new"
+            className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 flex items-center gap-2"
+          >
+            <span>+</span> Novo Ticket
+          </Link>
         </div>
 
         <div className="bg-white shadow rounded-lg overflow-hidden">

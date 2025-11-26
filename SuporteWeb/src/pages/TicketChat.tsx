@@ -9,7 +9,7 @@ import axios from "axios";
 import type { Message, Ticket } from "../types";
 import API_URL from "../api";
 
-// ! SIMULAÇÃO: Usuário logado (João)
+// SIMULAÇÃO: Usuário logado (João)
 const CURRENT_USER_ID = 1;
 
 export default function TicketChat() {
