@@ -43,29 +43,10 @@ export default function TicketChat() {
   useEffect(() => {
     const setupConnection = () => {
       const newConnection = new HubConnectionBuilder()
-        .withUrl(`${API_URL}/hubs/chat`) // Rota que definimos no Program.cs
+        .withUrl(`${API_URL}/hubs/chat`)
         .withAutomaticReconnect()
         .configureLogging(LogLevel.Information)
         .build();
-
-      newConnection.on(
-        "ReceiveMessage",
-        (
-          senderId: number,
-          senderName: string,
-          content: string,
-          sentAt: string
-        ) => {
-          const newMessage: Message = {
-            content,
-            senderId,
-            senderName,
-            sentAt,
-          };
-
-          setMessages((prev) => [...prev, newMessage]);
-        }
-      );
 
       setConnection(newConnection);
     };
@@ -73,9 +54,18 @@ export default function TicketChat() {
     setupConnection();
   }, []);
 
-  // 3. Iniciar Conexão e Definir Eventos
   useEffect(() => {
     if (connection) {
+      const handleReceiveMessage = (
+        senderId: number,
+        senderName: string,
+        content: string,
+        sentAt: string
+      ) => {
+        const newMessage: Message = { content, senderId, senderName, sentAt };
+        setMessages((prev) => [...prev, newMessage]);
+      };
+
       connection
         .start()
         .then(() => {
@@ -84,20 +74,10 @@ export default function TicketChat() {
         })
         .catch((err) => console.error("Erro de conexão SignalR:", err));
 
-      connection.on(
-        "ReceiveMessage",
-        (
-          senderId: number,
-          senderName: string,
-          content: string,
-          sentAt: string
-        ) => {
-          const newMessage: Message = { content, senderId, senderName, sentAt };
-          setMessages((prev) => [...prev, newMessage]);
-        }
-      );
+      connection.on("ReceiveMessage", handleReceiveMessage);
 
       return () => {
+        connection.off("ReceiveMessage", handleReceiveMessage);
         connection.stop();
       };
     }
