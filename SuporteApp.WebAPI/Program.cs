@@ -40,4 +40,18 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// Aplica migrações ao criar o container
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    try
+    {
+        dbContext.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("Erro ao aplicar migrations: " + ex.Message);
+    }
+}
+
 app.Run();

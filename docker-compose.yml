@@ -1,6 +1,7 @@
 services:
   db:
     image: postgres:latest
+    container_name: db_suporte
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123456
@@ -9,5 +10,39 @@ services:
       - "5555:5432"
     volumes:
       - postgres_data:/var/lib/postgresql
+    networks:
+      - suporte_net
+
+  api:
+    build:
+      context: ./SuporteApp.WebAPI
+      dockerfile: Dockerfile
+    container_name: suporte_api
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5555;Database=db_suporte;Username=postgres;Password=123456
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "5000:7232"
+    depends_on:
+      - db
+    networks:
+      - suporte_net
+
+  web:
+    build:
+      context: ./SuporteWeb
+      dockerfile: Dockerfile
+    container_name: suporte_web
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+    networks:
+      - suporte_net
+
 volumes:
   postgres_data:
+
+networks:
+  suporte_net:
+    driver: bridge
