@@ -12,7 +12,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddControllers();
 builder.Services.AddCors(o => o.AddPolicy("DefaultPolicy", builder =>
 {
-    builder.WithOrigins("http://localhost:3000", "http://localhost:5173")
+    builder.WithOrigins("http://localhost:3000", "http://localhost:5173", "http://suporte_web")
         .AllowAnyMethod()
         .AllowAnyHeader()
         .AllowCredentials();
@@ -31,7 +31,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// Remove HTTPS redirection no Docker
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseCors("DefaultPolicy");
 app.MapHub<SupportHub>("/hubs/chat");

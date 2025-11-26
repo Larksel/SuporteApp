@@ -42,8 +42,12 @@ export default function TicketChat() {
 
   useEffect(() => {
     const setupConnection = () => {
+      const hubUrl = process.env.NODE_ENV === 'production' 
+        ? '/hubs/chat'
+        : `${API_URL}/hubs/chat`;
+      
       const newConnection = new HubConnectionBuilder()
-        .withUrl(`${API_URL}/hubs/chat`)
+        .withUrl(hubUrl)
         .withAutomaticReconnect()
         .configureLogging(LogLevel.Information)
         .build();
