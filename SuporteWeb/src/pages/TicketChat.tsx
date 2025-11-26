@@ -7,8 +7,7 @@ import {
 } from "@microsoft/signalr";
 import axios from "axios";
 import type { Message, Ticket } from "../types";
-
-const API_URL = "https://localhost:7232";
+import API_URL from "../api";
 
 // ! SIMULAÇÃO: Usuário logado (João)
 const CURRENT_USER_ID = 1;
@@ -25,11 +24,11 @@ export default function TicketChat() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const ticketRes = await axios.get(`${API_URL}/api/ticket/${id}`);
+        const ticketRes = await axios.get(`${API_URL}/api/tickets/${id}`);
         setTicket(ticketRes.data);
 
         const historyRes = await axios.get(
-          `${API_URL}/api/ticket/${id}/messages`
+          `${API_URL}/api/tickets/${id}/messages`
         );
         setMessages(historyRes.data);
       } catch (error) {

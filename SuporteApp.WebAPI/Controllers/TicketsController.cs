@@ -8,11 +8,11 @@ namespace SuporteAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class TicketController : ControllerBase
+public class TicketsController : ControllerBase
 {
     private readonly AppDbContext _context;
 
-    public TicketController(AppDbContext context)
+    public TicketsController(AppDbContext context)
     {
         _context = context;
     }
@@ -38,8 +38,6 @@ public class TicketController : ControllerBase
         return Ok(tickets);
     }
 
-    // PUT: api/tickets/{id}/status
-    // Atualiza apenas o status (ex: de Aberto para Resolvido)
     [HttpPut("{id}/status")]
     public async Task<IActionResult> UpdateTicketStatus(int id, [FromBody] TicketStatus newStatus)
     {
@@ -85,7 +83,7 @@ public class TicketController : ControllerBase
         });
     }
 
-    // Carrega o histórico do chat ao abrir a tela
+    // Carrega o histórico do chat
     [HttpGet("{id}/messages")]
     public async Task<ActionResult<IEnumerable<Message>>> GetTicketMessages(int id)
     {

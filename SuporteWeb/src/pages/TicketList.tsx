@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { type Ticket, TicketStatus } from "../types";
-
-const API_URL = "https://localhost:7232";
+import API_URL from "../api";
 
 export default function TicketList() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -12,7 +11,7 @@ export default function TicketList() {
   // Função para buscar tickets
   const fetchTickets = async () => {
     try {
-      const response = await axios.get(`${API_URL}/api/ticket`);
+      const response = await axios.get(`${API_URL}/api/tickets`);
       console.log(response)
       setTickets(response.data);
     } catch (error) {
@@ -28,7 +27,7 @@ export default function TicketList() {
 
   const handleStatusChange = async (id: number, newStatus: string) => {
     try {
-      await axios.put(`${API_URL}/api/ticket/${id}/status`, Number(newStatus), {
+      await axios.put(`${API_URL}/api/tickets/${id}/status`, Number(newStatus), {
         headers: { "Content-Type": "application/json" },
       });
 

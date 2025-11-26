@@ -7,11 +7,11 @@ namespace SuporteApp.WebAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class UserController : ControllerBase
+public class UsersController : ControllerBase
 {
     private readonly AppDbContext _context;
 
-    public UserController(AppDbContext context)
+    public UsersController(AppDbContext context)
     {
         _context = context;
     }
