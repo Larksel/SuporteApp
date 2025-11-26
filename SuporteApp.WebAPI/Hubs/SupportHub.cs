@@ -37,10 +37,12 @@ public class SupportHub : Hub
         };
 
         _context.Messages.Add(newMessage);
-
         await _context.SaveChangesAsync();
 
+        var sender = await _context.Users.FindAsync(senderId);
+        string senderName = sender?.Name ?? "Desconhecido";
+
         await Clients.Group(ticketId.ToString())
-            .SendAsync("ReceiveMessage", senderId, messageContent, newMessage.SentAt);
+            .SendAsync("ReceiveMessage", senderId, senderName, messageContent, newMessage.SentAt);
     }
 }

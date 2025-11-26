@@ -2,8 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import API_URL from "../api";
-
-const CURRENT_USER_ID = 1; // Simulando o Cliente João logado
+import { CURRENT_USER_ID } from "../constants";
 
 export default function NewTicket() {
   const navigate = useNavigate();

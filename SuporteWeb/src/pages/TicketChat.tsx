@@ -6,11 +6,9 @@ import {
   LogLevel,
 } from "@microsoft/signalr";
 import axios from "axios";
-import type { Message, Ticket } from "../types";
+import type { Message, Ticket, User } from "../types";
 import API_URL from "../api";
-
-// SIMULAÇÃO: Usuário logado (João)
-const CURRENT_USER_ID = 1;
+import { CURRENT_USER_ID } from "../constants";
 
 export default function TicketChat() {
   const { id } = useParams();
@@ -18,9 +16,11 @@ export default function TicketChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState("");
   const [connection, setConnection] = useState<HubConnection | null>(null);
+  const [users, setUsers] = useState<User[]>([]);
+  const [currentUserId, setCurrentUserId] = useState<number>(CURRENT_USER_ID);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Carregar os dados
   useEffect(() => {
     async function fetchData() {
       try {
@@ -31,6 +31,8 @@ export default function TicketChat() {
           `${API_URL}/api/tickets/${id}/messages`
         );
         setMessages(historyRes.data);
+        const usersRes = await axios.get(`${API_URL}/api/users`);
+        setUsers(usersRes.data);
       } catch (error) {
         console.error("Erro ao carregar dados", error);
       }
@@ -38,7 +40,6 @@ export default function TicketChat() {
     fetchData();
   }, [id]);
 
-  // Configurando SignalR (WebSocket)
   useEffect(() => {
     const setupConnection = () => {
       const newConnection = new HubConnectionBuilder()
@@ -46,6 +47,25 @@ export default function TicketChat() {
         .withAutomaticReconnect()
         .configureLogging(LogLevel.Information)
         .build();
+
+      newConnection.on(
+        "ReceiveMessage",
+        (
+          senderId: number,
+          senderName: string,
+          content: string,
+          sentAt: string
+        ) => {
+          const newMessage: Message = {
+            content,
+            senderId,
+            senderName,
+            sentAt,
+          };
+
+          setMessages((prev) => [...prev, newMessage]);
+        }
+      );
 
       setConnection(newConnection);
     };
@@ -60,23 +80,19 @@ export default function TicketChat() {
         .start()
         .then(() => {
           console.log("Conectado ao SignalR!");
-          // Entrar no grupo do Ticket específico
           connection.invoke("JoinTicketGroup", id);
         })
         .catch((err) => console.error("Erro de conexão SignalR:", err));
 
-      // OUVINTE: Quando o servidor manda "ReceiveMessage"
       connection.on(
         "ReceiveMessage",
-        (senderId: number, content: string, sentAt: string) => {
-          const newMessage: Message = {
-            content,
-            senderId,
-            sentAt,
-            // Nota: O nome poderia vir do back, ou buscamos de uma lista local.
-            // Para simplificar, deixamos sem nome ou tratamos na UI.
-          };
-
+        (
+          senderId: number,
+          senderName: string,
+          content: string,
+          sentAt: string
+        ) => {
+          const newMessage: Message = { content, senderId, senderName, sentAt };
           setMessages((prev) => [...prev, newMessage]);
         }
       );
@@ -97,11 +113,10 @@ export default function TicketChat() {
     if (!inputText.trim() || !connection) return;
 
     try {
-      // Chama o método "SendMessage" no Backend (SupportHub.cs)
       await connection.invoke(
         "SendMessage",
         Number(id),
-        CURRENT_USER_ID,
+        currentUserId,
         inputText
       );
       setInputText("");
@@ -110,55 +125,112 @@ export default function TicketChat() {
     }
   };
 
-  if (!ticket) return <div className="p-10">Carregando ticket...</div>;
+  if (!ticket) return <div className="p-10">Carregando...</div>;
 
   return (
     <div className="flex h-screen bg-gray-100">
-      {/* Sidebar - Detalhes do Ticket */}
-      <div className="w-1/4 bg-white p-6 border-r border-gray-200">
-        <h2 className="text-xl font-bold mb-4">Ticket #{ticket.id}</h2>
-        <div className="mb-4">
-          <span className="text-xs text-gray-500 uppercase font-bold">
-            Assunto
-          </span>
-          <p className="text-gray-800 font-medium">{ticket.title}</p>
+      {/* SIDEBAR */}
+      <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
+        {/* NOVO: SELETOR DE USUÁRIO (SIMULAÇÃO) */}
+        <div className="p-4 bg-indigo-50 border-b border-indigo-100">
+          <label className="block text-xs font-bold text-indigo-800 mb-1">
+            Simular Login Como:
+          </label>
+          <select
+            value={currentUserId}
+            onChange={(e) => setCurrentUserId(Number(e.target.value))}
+            className="w-full text-sm border-indigo-200 rounded text-indigo-900 focus:ring-indigo-500"
+          >
+            {users.map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.name} ({u.role === 0 ? "Cliente" : "Técnico"})
+              </option>
+            ))}
+          </select>
+          <p className="text-[10px] text-indigo-600 mt-1">
+            *Troque aqui para falar como outra pessoa.
+          </p>
         </div>
-        <div className="mb-4">
-          <span className="text-xs text-gray-500 uppercase font-bold">
-            Descrição
-          </span>
-          <p className="text-gray-600 text-sm">{ticket.description}</p>
-        </div>
-        <div>
-          <span className="text-xs text-gray-500 uppercase font-bold">
-            Cliente
-          </span>
-          <p className="text-gray-800">{ticket.clientName}</p>
+
+        {/* Detalhes do Ticket */}
+        <div className="p-6">
+          <h2 className="text-xl font-bold mb-4 text-gray-800">
+            Ticket #{ticket.id}
+          </h2>
+          <div className="space-y-4">
+            <div>
+              <span className="text-xs text-gray-500 uppercase font-bold">
+                Assunto
+              </span>
+              <p className="text-gray-800 font-medium">{ticket.title}</p>
+            </div>
+            <div>
+              <span className="text-xs text-gray-500 uppercase font-bold">
+                Descrição
+              </span>
+              <p className="text-gray-600 text-sm">{ticket.description}</p>
+            </div>
+            <div>
+              <span className="text-xs text-gray-500 uppercase font-bold">
+                Status
+              </span>
+              <span className="ml-2 px-2 py-0.5 rounded text-xs bg-gray-200 text-gray-700">
+                {ticket.status}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Área de Chat */}
-      <div className="flex-1 flex flex-col">
+      {/* ÁREA DE CHAT */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {" "}
+        {/* min-w-0 evita overflow flex */}
+        {/* Header do Chat */}
+        <div className="bg-white border-b px-6 py-3 flex justify-between items-center shadow-sm z-10">
+          <h3 className="font-semibold text-gray-700">Histórico da Conversa</h3>
+          <span className="text-xs text-gray-400">Tempo Real</span>
+        </div>
         {/* Lista de Mensagens */}
-        <div className="flex-1 p-6 overflow-y-auto space-y-4">
+        <div className="flex-1 p-6 overflow-y-auto space-y-6 bg-slate-50">
           {messages.map((msg, index) => {
-            const isMe = msg.senderId === CURRENT_USER_ID;
+            const isMe = msg.senderId === currentUserId;
+
             return (
               <div
                 key={index}
-                className={`flex ${isMe ? "justify-end" : "justify-start"}`}
+                className={`flex w-full ${
+                  isMe ? "justify-end" : "justify-start"
+                }`}
               >
                 <div
-                  className={`max-w-xs md:max-w-md p-3 rounded-lg shadow ${
-                    isMe ? "bg-blue-600 text-white" : "bg-white text-gray-800"
+                  className={`flex flex-col max-w-[75%] ${
+                    isMe ? "items-end" : "items-start"
                   }`}
                 >
-                  <p>{msg.content}</p>
-                  <span
-                    className={`text-xs block mt-1 ${
-                      isMe ? "text-blue-200" : "text-gray-400"
-                    }`}
+                  {/* Nome */}
+                  {!isMe && (
+                    <span className="text-xs text-gray-500 mb-1 ml-1 font-medium">
+                      {msg.senderName}
+                    </span>
+                  )}
+
+                  {/* Balão */}
+                  <div
+                    className={`
+                    px-4 py-2 rounded-2xl shadow-sm text-sm wrap-break-word relative
+                    ${
+                      isMe
+                        ? "bg-blue-600 text-white rounded-br-none"
+                        : "bg-white text-gray-800 border border-gray-200 rounded-bl-none"
+                    }
+                  `}
                   >
+                    {msg.content}
+                  </div>
+
+                  {/* Hora */}
+                  <span className="text-[10px] text-gray-400 mt-1 mx-1">
                     {new Date(msg.sentAt).toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit",
@@ -170,21 +242,20 @@ export default function TicketChat() {
           })}
           <div ref={messagesEndRef} />
         </div>
-
         {/* Input */}
         <div className="p-4 bg-white border-t border-gray-200">
-          <div className="flex gap-2">
+          <div className="flex gap-2 max-w-4xl mx-auto">
             <input
               type="text"
-              className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Digite sua mensagem..."
+              className="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition shadow-sm"
+              placeholder={`Mensagem como usuário #${currentUserId}...`}
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
             />
             <button
               onClick={handleSendMessage}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors shadow-sm"
             >
               Enviar
             </button>
