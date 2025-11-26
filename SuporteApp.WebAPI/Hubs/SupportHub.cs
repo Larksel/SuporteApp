@@ -13,19 +13,16 @@ public class SupportHub : Hub
         _context = context;
     }
 
-    // Entrar no chat de um ticket específico
     public async Task JoinTicketGroup(string ticketId)
     {
         await Groups.AddToGroupAsync(Context.ConnectionId, ticketId);
     }
 
-    // Sair do chat
     public async Task LeaveTicketGroup(string ticketId)
     {
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, ticketId);
     }
 
-    // Enviar mensagem
     public async Task SendMessage(int ticketId, int senderId, string messageContent)
     {
         var newMessage = new Message

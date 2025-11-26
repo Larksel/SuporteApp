@@ -118,7 +118,6 @@ export default function TicketChat() {
     }
   };
 
-  // Enviar Mensagem
   const handleSendMessage = async () => {
     if (!inputText.trim() || !connection) return;
 
@@ -139,9 +138,9 @@ export default function TicketChat() {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      {/* SIDEBAR */}
+      {/* Sidebar */}
       <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
-        {/* NOVO: SELETOR DE USUÁRIO (SIMULAÇÃO) */}
+        {/* Seletor de Usuário */}
         <div className="p-4 bg-indigo-50 border-b border-indigo-100">
           <label className="block text-xs font-bold text-indigo-800 mb-1">
             Simular Login Como:
@@ -196,16 +195,13 @@ export default function TicketChat() {
         </div>
       </div>
 
-      {/* ÁREA DE CHAT */}
+      {/* Chat */}
       <div className="flex-1 flex flex-col min-w-0">
         {" "}
-        {/* min-w-0 evita overflow flex */}
-        {/* Header do Chat */}
         <div className="bg-white border-b px-6 py-3 flex justify-between items-center shadow-sm z-10">
           <h3 className="font-semibold text-gray-700">Histórico da Conversa</h3>
           <span className="text-xs text-gray-400">Tempo Real</span>
         </div>
-        {/* Lista de Mensagens */}
         <div className="flex-1 p-6 overflow-y-auto space-y-6 bg-slate-50">
           {messages.map((msg, index) => {
             const isMe = msg.senderId === currentUserId;
@@ -222,14 +218,11 @@ export default function TicketChat() {
                     isMe ? "items-end" : "items-start"
                   }`}
                 >
-                  {/* Nome */}
                   {!isMe && (
                     <span className="text-xs text-gray-500 mb-1 ml-1 font-medium">
                       {msg.senderName}
                     </span>
                   )}
-
-                  {/* Balão */}
                   <div
                     className={`
                     px-4 py-2 rounded-2xl shadow-sm text-sm wrap-break-word relative
@@ -243,7 +236,6 @@ export default function TicketChat() {
                     {msg.content}
                   </div>
 
-                  {/* Hora */}
                   <span className="text-[10px] text-gray-400 mt-1 mx-1">
                     {new Date(msg.sentAt).toLocaleTimeString([], {
                       hour: "2-digit",
@@ -256,7 +248,6 @@ export default function TicketChat() {
           })}
           <div ref={messagesEndRef} />
         </div>
-        {/* Input */}
         <div className="p-4 bg-white border-t border-gray-200">
           <div className="flex gap-2 max-w-4xl mx-auto">
             <input

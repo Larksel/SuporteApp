@@ -73,7 +73,6 @@ export default function UserList() {
       </h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* FORMULÁRIO DE CADASTRO */}
         <div className="bg-white p-6 rounded-lg shadow h-fit">
           <h2 className="text-xl font-semibold mb-4 text-indigo-600">
             Novo Usuário
@@ -137,7 +136,6 @@ export default function UserList() {
           </form>
         </div>
 
-        {/* LISTA DE USUÁRIOS */}
         <div className="md:col-span-2 bg-white rounded-lg shadow overflow-hidden">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">

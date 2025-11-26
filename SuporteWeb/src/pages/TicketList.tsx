@@ -8,7 +8,6 @@ export default function TicketList() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Função para buscar tickets
   const fetchTickets = async () => {
     try {
       const response = await axios.get(`${API_URL}/api/tickets`);
@@ -139,7 +138,6 @@ export default function TicketList() {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex gap-4 items-center">
-                    {/* Botão para ir ao Chat */}
                     <Link
                       to={`/tickets/${ticket.id}`}
                       className="text-indigo-600 hover:text-indigo-900"
@@ -147,7 +145,6 @@ export default function TicketList() {
                       Abrir Chat
                     </Link>
 
-                    {/* Select para mudar status rápido */}
                     <select
                       value={ticket.status}
                       onChange={(e) =>

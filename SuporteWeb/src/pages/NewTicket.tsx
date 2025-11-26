@@ -75,7 +75,6 @@ export default function NewTicket() {
             />
           </div>
 
-          {/* Botões de Ação */}
           <div className="flex justify-end gap-3 pt-4">
             <button
               type="button"
