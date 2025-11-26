@@ -6,7 +6,7 @@ import {
   LogLevel,
 } from "@microsoft/signalr";
 import axios from "axios";
-import type { Message, Ticket, User } from "../types";
+import { TicketStatus, type Message, type Ticket, type User } from "../types";
 import API_URL from "../api";
 import { CURRENT_USER_ID } from "../constants";
 
@@ -88,6 +88,36 @@ export default function TicketChat() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  const getStatusColor = (status: TicketStatus) => {
+    switch (status) {
+      case TicketStatus.Open:
+        return "bg-green-100 text-green-800";
+      case TicketStatus.InProgress:
+        return "bg-yellow-100 text-yellow-800";
+      case TicketStatus.Resolved:
+        return "bg-blue-100 text-blue-800";
+      case TicketStatus.Closed:
+        return "bg-gray-100 text-gray-800";
+      default:
+        return "bg-gray-100";
+    }
+  };
+
+  const getStatusLabel = (status: TicketStatus) => {
+    switch (status) {
+      case TicketStatus.Open:
+        return "Aberto";
+      case TicketStatus.InProgress:
+        return "Em Progresso";
+      case TicketStatus.Resolved:
+        return "Resolvido";
+      case TicketStatus.Closed:
+        return "Fechado";
+      default:
+        return "Desconhecido";
+    }
+  };
+
   // Enviar Mensagem
   const handleSendMessage = async () => {
     if (!inputText.trim() || !connection) return;
@@ -154,8 +184,12 @@ export default function TicketChat() {
               <span className="text-xs text-gray-500 uppercase font-bold">
                 Status
               </span>
-              <span className="ml-2 px-2 py-0.5 rounded text-xs bg-gray-200 text-gray-700">
-                {ticket.status}
+              <span
+                className={`ml-2 px-2 py-0.5 rounded text-xs bg-gray-200 text-gray-700 ${getStatusColor(
+                  ticket.status
+                )}`}
+              >
+                {getStatusLabel(ticket.status)}
               </span>
             </div>
           </div>
